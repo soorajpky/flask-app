@@ -1,0 +1,36 @@
+<!-- add_user.html -->
+{% extends "base.html" %}
+{% block content %}
+  <h2>Add User</h2>
+  <form method="POST" action="{{ url_for('add_user') }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.email.label }}<br>
+      {{ form.email(size=32) }}<br>
+      {% for error in form.email.errors %}
+        <small class="text-danger">{{ error }}</small><br>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.password.label }}<br>
+      {{ form.password(size=32) }}<br>
+      {% for error in form.password.errors %}
+        <small class="text-danger">{{ error }}</small><br>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.confirm_password.label }}<br>
+      {{ form.confirm_password(size=32) }}<br>
+      {% for error in form.confirm_password.errors %}
+        <small class="text-danger">{{ error }}</small><br>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.is_admin.label }}<br>
+      {{ form.is_admin() }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.submit() }}
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-4">Dashboard</h2>
+  <p>Welcome, {{ current_user.email }}</p>
+  {% if current_user.is_admin %}
+    <a href="{{ url_for('add_board') }}" class="btn btn-primary mb-3">Add New Board</a>
+  {% endif %}
+
+  <div class="row">
+    {% for board in boards %}
+    <div class="col-md-4 mb-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ board.name }}</h5>
+          <p><a href="{{ board.location_url }}" target="_blank" class="btn btn-link">View Location</a></p>
+          <p>Renewal Date: {{ board.renewal_date }}</p>
+          <p>Renewal Amount: ₹{{ board.renewal_amount }}</p>
+          {% if board.image %}
+          <img src="{{ url_for('static', filename='uploads/' + board.image) }}" class="img-fluid rounded" alt="Board Image">
+          {% endif %}
+          <div class="mt-3">
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('edit_board', board_id=board.id) }}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="{{ url_for('delete_board', board_id=board.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+
