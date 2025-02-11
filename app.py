@@ -3,7 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.utils import secure_filename
 from models import db, User, Board, bcrypt
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, BoardForm, UserForm
@@ -60,7 +60,14 @@ def logout():
 @login_required
 def dashboard():
     boards = Board.query.all()
-    return render_template('dashboard.html', boards=boards)
+
+    # Check for boards with renewal dates within the next 7 days
+    alert_boards = [
+        board for board in boards
+        if board.renewal_date and 0 <= (board.renewal_date - datetime.today().date()).days <= 7
+    ]
+
+    return render_template('dashboard.html', boards=boards, alert_boards=alert_boards)
 
 @app.route('/add_board', methods=['GET', 'POST'])
 @login_required
@@ -149,3 +156,4 @@ def edit_board(board_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+

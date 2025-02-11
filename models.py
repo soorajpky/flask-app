@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 from config import Config
 import os
 
@@ -20,11 +21,11 @@ class Board(db.Model):
     renewal_date = db.Column(db.Date, nullable=False)
     renewal_amount = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(300), nullable=True)
-    updated_by = db.Column(db.String(150), nullable=True)  # Tracks who updated it
+    updated_by = db.Column(db.String(150), nullable=True)  # Tracks who updated the board
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Timestamp for updates
 
 def create_tables():
     """Creates database tables if they don't exist"""
     if not os.path.exists("boards.db"):  # Prevents recreation of DB every time app runs
-        with app.app_context():
-            db.create_all()
+        db.create_all()
 
