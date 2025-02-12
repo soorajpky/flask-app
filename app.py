@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, BoardForm, UserForm
 import os
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -67,7 +68,8 @@ def logout():
 @login_required
 def dashboard():
     boards = Board.query.all()
-    alert_boards = [board for board in boards if board.renewal_date]
+    today = datetime.today().date()
+    alert_boards = [board for board in boards if board.renewal_date and (0 <= (board.renewal_date - today).days <= 7)]
     return render_template('dashboard.html', boards=boards, alert_boards=alert_boards)
 
 
