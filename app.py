@@ -3,13 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from forms import LoginForm, BoardForm, UserForm
 from config import Config
+from forms import LoginForm, BoardForm, UserForm  # ✅ FIX: Importing forms
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Initialize app
+# Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -69,9 +69,30 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    boards = Board.query.all()
+    search_query = request.args.get('search', '').strip()
+    filter_option = request.args.get('filter', '')
+
     today = datetime.today().date()
-    alert_boards = [board for board in boards if board.renewal_date and (0 <= (board.renewal_date - today).days <= 7)]
+    
+    # Base query: Get all boards
+    query = Board.query
+
+    # 🔎 Apply search filter (search by board name)
+    if search_query:
+        query = query.filter(Board.name.ilike(f"%{search_query}%"))  
+
+    # 📅 Apply renewal date filter
+    if filter_option == 'week':
+        query = query.filter(Board.renewal_date.between(today, today + timedelta(days=7)))
+    elif filter_option == 'month':
+        query = query.filter(Board.renewal_date.between(today, today + timedelta(days=30)))
+
+    # Get the filtered results
+    boards = query.all()
+
+    # Show alert for boards expiring in 7 days
+    alert_boards = [board for board in boards if (board.renewal_date - today).days <= 7]
+
     return render_template('dashboard.html', boards=boards, alert_boards=alert_boards)
 
 @app.route('/add_board', methods=['GET', 'POST'])
@@ -165,6 +186,9 @@ def add_user():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
 
 
 

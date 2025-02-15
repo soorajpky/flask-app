@@ -14,6 +14,19 @@
     </div>
   {% endif %}
 
+  <!-- 🛠️ Search & Filter Form -->
+  <form method="GET" action="{{ url_for('dashboard') }}" class="d-flex mb-3">
+    <input type="text" name="search" class="form-control me-2" placeholder="Search by board name..." value="{{ request.args.get('search', '') }}">
+    
+    <select name="filter" class="form-control me-2">
+      <option value="">Filter by Renewal Date</option>
+      <option value="week" {% if request.args.get('filter') == 'week' %}selected{% endif %}>Next 7 Days</option>
+      <option value="month" {% if request.args.get('filter') == 'month' %}selected{% endif %}>Next 30 Days</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
   <div class="d-flex justify-content-between mb-3">
     <a href="{{ url_for('add_board') }}" class="btn btn-primary">Add New Board</a>
     {% if current_user.is_admin %}
@@ -53,6 +66,7 @@
     </div>
     {% endfor %}
   </div>
+
 {% endblock %}
 
 
